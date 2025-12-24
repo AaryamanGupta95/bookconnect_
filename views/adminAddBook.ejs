@@ -12,7 +12,7 @@
     <% if (error) { %>
       <div class="error-message"><%= error %></div>
     <% } %>
-    <form method="POST" action="/admin/books/add" enctype="multipart/form-data" class="card-form">
+    <form method="POST" action="/admin/books/add" class="card-form">
       <label for="title">Title</label>
       <input id="title" name="title" required>
 
@@ -21,9 +21,6 @@
 
       <label for="isbn">ISBN</label>
       <input id="isbn" name="isbn">
-
-      <label for="cover">Cover Image</label>
-      <input id="cover" name="cover" type="file" accept="image/*">
 
       <div style="margin-top:1em">
         <button class="btn" type="submit">Add Book</button>

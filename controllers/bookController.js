@@ -109,7 +109,6 @@ exports.addBook = async (req, res, next) => {
     }
     const { title, authors, isbn } = req.body;
     if (!title) return res.render('adminAddBook', { error: 'Title is required' });
-    const coverUrl = req.file ? `/uploads/${req.file.filename}` : null;
     let existing = null;
     if (isbn) {
       existing = await bookModel.findByISBN(isbn);
@@ -119,13 +118,9 @@ exports.addBook = async (req, res, next) => {
     }
     if (existing) {
       const updateData = { title, authors, isbn };
-      if (coverUrl) {
-        updateData.coverUrl = coverUrl;
-        await removeCoverIfExists(existing.cover_url);
-      }
       await bookModel.update(existing.id, updateData);
     } else {
-      await bookModel.create({ title, authors, isbn, coverUrl });
+      await bookModel.create({ title, authors, isbn, coverUrl: null });
     }
 
     // Previously invalidated Redis books cache here (now removed)

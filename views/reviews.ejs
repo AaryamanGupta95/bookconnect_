@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Reviews - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <div class="reviews-header">
+      <h2>Book Reviews</h2>
+      <% if (currentUser) { %>
+        <a href="/reviews/add" class="btn btn-primary">Add New Review</a>
+      <% } %>
+    </div>
+    
+    <% if (reviews && reviews.length) { %>
+      <div class="reviews-list">
+        <% reviews.forEach(function(review) { %>
+          <div class="review-card">
+            <div class="review-header">
+              <h3><%= review.book_title %></h3>
+              <div class="rating">
+                <% for (let i = 1; i <= 5; i++) { %>
+                  <span class="star <%= i <= review.rating ? 'filled' : '' %>">★</span>
+                <% } %>
+              </div>
+            </div>
+            <div class="review-meta">
+              <span class="author">by <%= review.book_authors || 'Unknown Author' %></span>
+              <span class="reviewer">Reviewed by <%= review.username %></span>
+              <span class="date"><%= new Date(review.created_at).toLocaleDateString() %></span>
+            </div>
+            <div class="review-content">
+              <p><%= review.content %></p>
+            </div>
+            <% if (currentUser && currentUser.isAdmin) { %>
+              <div style="margin-top:0.5rem">
+                <button class="btn-delete" data-id="<%= review.id %>">Delete</button>
+              </div>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="no-reviews">
+        <p>No reviews yet. Be the first to share your thoughts!</p>
+        <% if (currentUser) { %>
+          <a href="/reviews/add" class="btn btn-primary">Add First Review</a>
+        <% } else { %>
+          <a href="/login" class="btn btn-primary">Login to Add Review</a>
+        <% } %>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/footer') %>
+  <script>
+    // Admin delete action
+    document.addEventListener('click', async (e) => {
+      if (e.target && e.target.classList.contains('btn-delete')) {
+        const id = e.target.dataset.id;
+        if (!confirm('Delete this review?')) return;
+        try {
+          const res = await fetch('/admin/reviews/' + id, { method: 'DELETE' });
+          if (res.ok) {
+            location.reload();
+          } else {
+            const json = await res.json();
+            alert('Error: ' + (json.error || 'Unable to delete'));
+          }
+        } catch (err) { alert('Network error'); }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= authorName %> - Author Profile | BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .author-header {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      padding: 3rem 2rem;
+      border-radius: var(--radius-card);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .author-header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+    }
+
+    .author-stats {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 0.25rem;
+    }
+
+    .author-books-section {
+      margin-top: 2rem;
+    }
+
+    .author-books-section h2 {
+      margin-bottom: 1.5rem;
+      color: var(--text-dark);
+    }
+
+    .author-description {
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+    }
+
+    .author-description h3 {
+      margin: 0 0 1rem 0;
+      color: var(--text-dark);
+      font-size: 1.5rem;
+    }
+
+    .author-description p {
+      margin: 0;
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <div class="author-header">
+      <h1>✍️ <%= authorName %></h1>
+      <p class="subtext">Author Profile</p>
+      
+      <div class="author-stats">
+        <div class="stat-item">
+          <span class="stat-value"><%= stats.totalBooks %></span>
+          <span class="stat-label">Books</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><%= stats.totalViews %></span>
+          <span class="stat-label">Total Views</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value"><%= stats.avgViews %></span>
+          <span class="stat-label">Avg Views</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="author-description">
+      <h3>About <%= authorName %></h3>
+      <p>
+        <%= authorName %> is a distinguished author whose literary works have captivated readers around the world. 
+        With <%= stats.totalBooks %> published work<%= stats.totalBooks !== 1 ? 's' : '' %> in our collection, 
+        <%= authorName %> has established a significant presence in the literary community. 
+        Their books have garnered <%= stats.totalViews %> total views, demonstrating the enduring appeal and 
+        impact of their storytelling.
+      </p>
+      <p style="margin-top: 1rem;">
+        <%= authorName %>'s writing style combines depth, creativity, and engaging narratives that resonate 
+        with readers of all backgrounds. Each work contributes to a rich literary legacy that continues to 
+        inspire and entertain audiences. Explore the collection below to discover the unique voice and 
+        perspective that <%= authorName %> brings to the world of literature.
+      </p>
+    </div>
+
+    <div class="author-books-section">
+      <h2>Books by <%= authorName %></h2>
+      
+      <% if (books && books.length > 0) { %>
+        <div class="book-grid">
+          <% books.forEach(function(book){ %>
+            <div class="book-card">
+              <div class="book-cover">
+                <% if (book.cover_url) { %>
+                  <img src="<%= book.cover_url %>" alt="Cover for <%= book.title %>">
+                <% } else { %>
+                  <div class="cover-placeholder">
+                    <span><%= (book.title || 'Book')[0] %></span>
+                  </div>
+                <% } %>
+              </div>
+              <div class="book-body">
+                <p class="eyebrow"><%= book.authors || 'Unknown Author' %></p>
+                <h3><%= book.title %></h3>
+                <p class="meta">ISBN: <%= book.isbn || 'N/A' %></p>
+                <p class="meta">Views: <%= book.views || 0 %></p>
+                <div class="book-actions">
+                  <a href="/books/<%= book.id %>" class="btn-outline">View Details</a>
+                  <a href="/reviews/add?title=<%= encodeURIComponent(book.title) %>" class="btn">Review</a>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>No books found for this author.</p>
+        </div>
+      <% } %>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>
+

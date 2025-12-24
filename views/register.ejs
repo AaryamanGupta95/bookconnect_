@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background: linear-gradient(135deg,#667eea,#764ba2); }
+    .auth-card { background: #fff; padding:2.5rem; border-radius:12px; width:360px; box-shadow:0 10px 30px rgba(0,0,0,0.12); }
+    .auth-card h2{margin-top:0;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <h2>Create an Account</h2>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    <form action="/register" method="POST">
+      <label>Username:</label>
+      <input type="text" name="username" required>
+      <label>Email:</label>
+      <input type="email" name="email" required>
+      <label>Password:</label>
+      <input type="password" name="password" required>
+      <div style="text-align:center;margin-top:1rem"><button type="submit" class="btn">Register</button></div>
+    </form>
+    <div style="text-align:center;margin-top:1rem">
+      <a href="/login" class="btn btn-secondary">Back to Login</a>
+    </div>
+  </div>
+</body>
+</html>

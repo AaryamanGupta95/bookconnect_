@@ -1,0 +1,36 @@
+<header>
+  <nav>
+    <div class="nav-left">
+      <a href="/" class="nav-logo">BookConnect</a>
+      <a href="/books">Books</a>
+      <a href="/chat">Chat</a>
+      <% if (currentUser && currentUser.isAdmin) { %>
+        <a href="/admin">Admin</a>
+      <% } %>
+    </div>
+
+    <div class="nav-center">
+      <form action="/books" method="GET" class="nav-search">
+        <input
+          name="q"
+          type="search"
+          placeholder="Search books, authors, ISBN..."
+          id="navSearchInput"
+        >
+      </form>
+    </div>
+
+    <div class="nav-right">
+      <% if (currentUser) { %>
+        <% if (!currentUser.isAdmin) { %>
+          <a href="/reviews/mine">My Reviews</a>
+        <% } %>
+        <span class="welcome-user-small">Hi, <span><%= currentUser.username %></span></span>
+        <a href="/logout" class="btn-outline nav-logout">Logout</a>
+      <% } else { %>
+        <a href="/login" class="btn-outline">Login</a>
+        <a href="/register" class="btn">Sign up</a>
+      <% } %>
+    </div>
+  </nav>
+</header>

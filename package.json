@@ -1,0 +1,42 @@
+{
+  "name": "bookconnect",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon --watch . --exec \"node server.js\"",
+    "dev:debug": "nodemon --watch . --exec \"node --inspect=9229 server.js\"",
+    "seed": "node cli/seed.js",
+    "seed:mongo": "node cli/seed-mongodb.js",
+    "postinstall": "echo 'Installation complete'"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
+    "connect-redis": "^7.1.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.2",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.18.2",
+    "mongoose": "^8.20.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.15.0",
+    "redis": "^4.6.7",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "eslint": "^9.36.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  }
+}

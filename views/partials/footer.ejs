@@ -1,0 +1,26 @@
+<!-- filepath: c:\Users\HP\OneDrive\Desktop\BookConnect\views\partials\footer.ejs -->
+<footer>
+  <p>&copy; <%= new Date().getFullYear() %> BookConnect</p>
+</footer>
+<script>
+  // Try to connect to socket.io if it's available on the server
+  (function(){
+    try {
+      const script = document.createElement('script');
+      script.src = '/socket.io/socket.io.js';
+      script.onload = () => {
+        const socket = io();
+        socket.on('connect', () => console.log('Socket connected (client)'));
+        socket.on('new-review', (data) => {
+          // Simple UI hook: notify user that a new review arrived
+          console.log('New review event', data);
+          // Only show a small browser notification if the page is not the reviews list
+          if (!location.pathname.startsWith('/reviews')) {
+            alert('New review added! Refresh the reviews page to see it.');
+          }
+        });
+      };
+      document.body.appendChild(script);
+    } catch (e) { console.error('Socket client load failed', e); }
+  })();
+</script>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">Manage inventory</p>
+        <h2>Admin Dashboard</h2>
+      </div>
+      <div class="cta-group">
+        <a class="btn" href="/admin/books/add">Add Book</a>
+        <a class="btn btn-secondary" href="/admin/analytics">View Analytics</a>
+      </div>
+    </div>
+    <h3 style="margin-top:1.5em">All Books</h3>
+    <div class="admin-books-list">
+      <% books.forEach(function(book){ %>
+        <div class="admin-book-row">
+          <div class="admin-book-left">
+            <div class="book-cover small">
+              <% if (book.cover_url) { %>
+                <img src="<%= book.cover_url %>" alt="Cover for <%= book.title %>">
+              <% } else { %>
+                <div class="cover-placeholder">
+                  <span><%= (book.title || 'B')[0] %></span>
+                </div>
+              <% } %>
+            </div>
+            <div class="admin-book-info">
+              <h4><%= book.title %></h4>
+              <p class="eyebrow"><%= book.authors || 'Unknown Author' %></p>
+              <p class="meta">ISBN: <%= book.isbn || 'N/A' %></p>
+            </div>
+          </div>
+          <div class="admin-book-actions">
+            <a class="btn btn-secondary" href="/books/<%= book.id %>">View</a>
+            <button class="btn btn-cancel btn-delete-book" data-id="<%= book.id %>">Remove</button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+  <script>
+    document.addEventListener('click', async (event) => {
+      if (event.target && event.target.classList.contains('btn-delete-book')) {
+        const id = event.target.dataset.id;
+        if (!confirm('Remove this book? Reviews for it will also be removed.')) return;
+        try {
+          const response = await fetch(`/admin/books/${id}`, { method: 'DELETE' });
+          if (response.ok) {
+            location.reload();
+          } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to remove book.');
+          }
+        } catch (err) {
+          alert('Network error removing book.');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

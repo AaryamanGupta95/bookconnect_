@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Analytics - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Health overview</p>
+        <h2>Platform Analytics</h2>
+        <p class="subtext">Real-time numbers sourced directly from the database.</p>
+      </div>
+      <div class="cta-group">
+        <a href="/admin" class="btn">Back to Dashboard</a>
+      </div>
+    </section>
+
+    <section class="analytics-grid">
+      <div class="analytics-card">
+        <p class="eyebrow">Total Books</p>
+        <h3><%= totals.books %></h3>
+      </div>
+      <div class="analytics-card">
+        <p class="eyebrow">Total Reviews</p>
+        <h3><%= totals.reviews %></h3>
+      </div>
+      <div class="analytics-card">
+        <p class="eyebrow">Total Users</p>
+        <h3><%= totals.users %></h3>
+      </div>
+      <div class="analytics-card">
+        <p class="eyebrow">Total Book Views</p>
+        <h3><%= totals.views %></h3>
+      </div>
+      <div class="analytics-card">
+        <p class="eyebrow">Active Sessions</p>
+        <h3><%= totals.sessions || 0 %></h3>
+      </div>
+    </section>
+
+    <section style="margin-top:2.5rem">
+      <h3>Books Breakdown</h3>
+      <div class="table-wrapper">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Reviews</th>
+              <th>Views</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% booksStats.forEach(function(book){ %>
+              <tr>
+                <td>
+                  <div class="table-book">
+                    <div class="book-cover tiny">
+                      <% if (book.cover_url) { %>
+                        <img src="<%= book.cover_url %>" alt="Cover for <%= book.title %>">
+                      <% } else { %>
+                        <div class="cover-placeholder"><span><%= (book.title || 'B')[0] %></span></div>
+                      <% } %>
+                    </div>
+                    <div>
+                      <strong><%= book.title %></strong>
+                    </div>
+                  </div>
+                </td>
+                <td><%= book.review_count %></td>
+                <td><%= book.views %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section style="margin-top:2.5rem">
+      <h3>Users</h3>
+      <div class="table-wrapper">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (users && users.length) { %>
+              <% users.forEach(function(user){ %>
+                <tr>
+                  <td><code style="font-size:0.85em;background:rgba(0,0,0,0.05);padding:0.25em 0.5em;border-radius:4px;"><%= user.id %></code></td>
+                  <td><strong><%= user.username %></strong></td>
+                  <td><%= user.email %></td>
+                  <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="4" style="text-align:center;padding:2rem;color:var(--text-muted);">No users yet</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section style="margin-top:2.5rem">
+      <h3>Active Sessions</h3>
+      <p style="color:var(--text-muted);margin-bottom:1rem;font-size:0.9em;">
+        Each browser/device gets one session. Multiple sessions = multiple users or devices logged in.
+      </p>
+      <div class="table-wrapper">
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Session ID</th>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Expires</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (activeSessions && activeSessions.length) { %>
+              <% activeSessions.forEach(function(session){ %>
+                <tr>
+                  <td><code style="font-size:0.8em;background:rgba(0,0,0,0.05);padding:0.25em 0.5em;border-radius:4px;"><%= session.id.substring(0, 20) %>...</code></td>
+                  <td><strong><%= session.username %></strong></td>
+                  <td><%= session.email %></td>
+                  <td><%= session.isAdmin ? 'Admin' : 'User' %></td>
+                  <td><%= new Date(session.expires).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No active sessions</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>
+

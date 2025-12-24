@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Reviews - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">Personal activity</p>
+        <h2>My Reviews</h2>
+        <p class="subtext">Track every book you’ve shared thoughts on.</p>
+      </div>
+      <div class="cta-group">
+        <a href="/reviews/add" class="btn">Write Review</a>
+      </div>
+    </section>
+
+    <% if (reviews && reviews.length) { %>
+      <div class="reviews-list">
+        <% reviews.forEach(function(review){ %>
+          <div class="review-card my-review-card">
+            <div class="my-review-book">
+              <div class="book-cover tiny">
+                <% if (review.book_cover) { %>
+                  <img src="<%= review.book_cover %>" alt="Cover for <%= review.book_title %>">
+                <% } else { %>
+                  <div class="cover-placeholder"><span><%= (review.book_title || 'B')[0] %></span></div>
+                <% } %>
+              </div>
+              <div>
+                <p class="eyebrow"><%= review.book_authors || 'Unknown Author' %></p>
+                <h3 style="margin:0"><%= review.book_title %></h3>
+                <p class="meta">Reviewed on <%= new Date(review.created_at).toLocaleDateString() %></p>
+              </div>
+            </div>
+            <div class="rating">
+              <% for (let i = 1; i <= 5; i++) { %>
+                <span class="star <%= i <= review.rating ? 'filled' : '' %>">★</span>
+              <% } %>
+            </div>
+            <p class="review-content"><%= review.content %></p>
+            <div class="review-actions" style="margin-top:1rem;display:flex;gap:0.5rem">
+              <a href="/reviews/edit/<%= review.id %>" class="btn btn-secondary" style="padding:0.6em 1.2em;font-size:0.9em">Edit</a>
+              <button class="btn btn-cancel btn-delete-review" data-id="<%= review.id %>" style="padding:0.6em 1.2em;font-size:0.9em">Delete</button>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <p>You haven’t reviewed any books yet.</p>
+        <a href="/books" class="btn btn-secondary">Browse Books</a>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/footer') %>
+  <script>
+    document.addEventListener('click', async (e) => {
+      if (e.target && e.target.classList.contains('btn-delete-review')) {
+        const id = e.target.dataset.id;
+        if (!confirm('Delete this review? This action cannot be undone.')) return;
+        try {
+          const res = await fetch('/reviews/' + id, { method: 'DELETE' });
+          if (res.ok) {
+            location.reload();
+          } else {
+            const json = await res.json();
+            alert('Error: ' + (json.error || 'Unable to delete'));
+          }
+        } catch (err) {
+          alert('Network error');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+

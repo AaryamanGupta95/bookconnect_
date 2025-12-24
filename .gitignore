@@ -1,0 +1,13 @@
+node_modules/
+.env
+/public/uploads/
+.DS_Store
+*.log
+server-output.log
+certs/
+.vscode/
+*.pem
+*.cer
+.env.local
+.env.production.local
+.env.development.local

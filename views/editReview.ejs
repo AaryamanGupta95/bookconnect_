@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Review - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <h2>Edit Review</h2>
+    <p class="subtext" style="margin-bottom:1.5em">Editing review for: <strong><%= book.title %></strong></p>
+    
+    <% if (error) { %>
+      <div class="error-message">
+        <p><%= error %></p>
+      </div>
+    <% } %>
+    
+    <form action="/reviews/edit/<%= review.id %>" method="POST">
+      <div class="form-group">
+        <label for="rating">Rating:</label>
+        <select id="rating" name="rating" required>
+          <option value="">Select a rating</option>
+          <option value="1" <%= formData && formData.rating == '1' ? 'selected' : '' %>>1 Star</option>
+          <option value="2" <%= formData && formData.rating == '2' ? 'selected' : '' %>>2 Stars</option>
+          <option value="3" <%= formData && formData.rating == '3' ? 'selected' : '' %>>3 Stars</option>
+          <option value="4" <%= formData && formData.rating == '4' ? 'selected' : '' %>>4 Stars</option>
+          <option value="5" <%= formData && formData.rating == '5' ? 'selected' : '' %>>5 Stars</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="content">Your Review:</label>
+        <textarea id="content" name="content" rows="5" required 
+                  placeholder="Share your thoughts about this book..."><%= formData && formData.content ? formData.content : '' %></textarea>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit">Update Review</button>
+        <a href="/reviews/mine" class="btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>
+

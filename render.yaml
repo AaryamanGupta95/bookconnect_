@@ -1,0 +1,47 @@
+# Render Blueprint for BookConnect
+# Deploy at: https://dashboard.render.com
+
+services:
+  - type: web
+    name: bookconnect
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Set in Render dashboard
+      - key: REDIS_URL
+        sync: false  # Set in Render dashboard (optional)
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PORT
+        value: 10000
+      - key: ADMIN_EMAIL
+        value: admin@bookconnect.com
+
+databases:
+  - name: bookconnect-mongodb
+    plan: free
+    databaseName: book_connect
+    # MongoDB Atlas is recommended for production
+    # Or use Render's MongoDB addon if available
+
+  - name: bookconnect-redis
+    plan: free
+    # Redis is optional - app works with MongoDB sessions only
+
+
+
+
+
+
+
+
+
+
+
+
+

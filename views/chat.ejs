@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .chat-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: var(--card-bg);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 200px);
+      min-height: 600px;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .chat-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .chat-header p {
+      margin: 0.5rem 0 0 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      background: #f8fafc;
+    }
+
+    .chat-message {
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-message.own {
+      align-items: flex-end;
+    }
+
+    .chat-message.other {
+      align-items: flex-start;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 0.85rem 1.2rem;
+      border-radius: 18px;
+      word-wrap: break-word;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-message.own .message-bubble {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-message.other .message-bubble {
+      background: #fff;
+      color: var(--text-dark);
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .message-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      padding: 0 0.5rem;
+    }
+
+    .message-username {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+      font-size: 0.85rem;
+    }
+
+    .chat-input-container {
+      padding: 1.5rem;
+      background: #fff;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .chat-input-form {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .chat-input-form input {
+      flex: 1;
+      padding: 0.85rem 1.2rem;
+      border: 1px solid var(--border-soft);
+      border-radius: 999px;
+      font-size: 1rem;
+      background: #f8fafc;
+    }
+
+    .chat-input-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #fff;
+    }
+
+    .chat-input-form button {
+      padding: 0.85rem 2rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input-form button:hover {
+      background: var(--accent-2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .chat-input-form button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .empty-chat {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    .empty-chat p {
+      font-size: 1.1rem;
+    }
+
+    .online-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <div class="chat-container">
+      <div class="chat-header">
+        <h2>📚 BookConnect Chat</h2>
+        <p><span class="online-indicator"></span>Connect with fellow readers - Messages persist across pages</p>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-chat">
+          <p>Start a conversation! Messages are saved in your browser and will persist across page navigations. They will only disappear when the server restarts.</p>
+        </div>
+      </div>
+      
+      <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm">
+          <input 
+            type="text" 
+            id="messageInput" 
+            placeholder="Type your message..." 
+            autocomplete="off"
+            required
+          >
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (function() {
+      const socket = io();
+      const chatMessages = document.getElementById('chatMessages');
+      const chatForm = document.getElementById('chatForm');
+      const messageInput = document.getElementById('messageInput');
+      const STORAGE_KEY = 'bookconnect_chat_messages';
+      const SERVER_TIMESTAMP_KEY = 'bookconnect_server_timestamp';
+      const currentUser = {
+        username: '<%= currentUser.username %>',
+        id: '<%= currentUser.id %>'
+      };
+
+      // Load messages from localStorage
+      function loadMessages() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) {
+            const messages = JSON.parse(stored);
+            messages.forEach(msg => displayMessage(msg));
+            scrollToBottom();
+          }
+        } catch (e) {
+          console.error('Error loading messages:', e);
+        }
+      }
+
+      // Save message to localStorage
+      function saveMessage(message) {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          const messages = stored ? JSON.parse(stored) : [];
+          messages.push(message);
+          // Keep only last 100 messages to avoid storage issues
+          if (messages.length > 100) {
+            messages.shift();
+          }
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        } catch (e) {
+          console.error('Error saving message:', e);
+        }
+      }
+
+      // Display a message in the chat
+      function displayMessage(message) {
+        const emptyChat = chatMessages.querySelector('.empty-chat');
+        if (emptyChat) {
+          emptyChat.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${message.userId === currentUser.id ? 'own' : 'other'}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        
+        if (message.userId !== currentUser.id) {
+          const usernameDiv = document.createElement('div');
+          usernameDiv.className = 'message-username';
+          usernameDiv.textContent = message.username;
+          bubble.appendChild(usernameDiv);
+        }
+        
+        const textDiv = document.createElement('div');
+        textDiv.textContent = message.text;
+        bubble.appendChild(textDiv);
+        
+        const metaDiv = document.createElement('div');
+        metaDiv.className = 'message-meta';
+        metaDiv.textContent = new Date(message.timestamp).toLocaleTimeString();
+        bubble.appendChild(metaDiv);
+        
+        messageDiv.appendChild(bubble);
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+      }
+
+      // Scroll to bottom
+      function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      // Handle form submission
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        const message = {
+          text: text,
+          username: currentUser.username,
+          userId: currentUser.id,
+          timestamp: new Date().toISOString()
+        };
+
+        // Save to localStorage
+        saveMessage(message);
+
+        // Display immediately
+        displayMessage(message);
+
+        // Send via Socket.io
+        socket.emit('chat message', message);
+
+        // Clear input
+        messageInput.value = '';
+      });
+
+      // Receive server timestamp on connection
+      socket.on('server timestamp', (serverTime) => {
+        const storedTimestamp = localStorage.getItem(SERVER_TIMESTAMP_KEY);
+        // If stored timestamp is different or much older, server restarted
+        if (!storedTimestamp || Math.abs(parseInt(storedTimestamp) - serverTime) > 1000) {
+          // Server restarted - clear messages
+          localStorage.removeItem(STORAGE_KEY);
+          chatMessages.innerHTML = '<div class="empty-chat"><p>Start a conversation! Messages are saved in your browser and will disappear on server restart.</p></div>';
+        }
+        // Update stored timestamp
+        localStorage.setItem(SERVER_TIMESTAMP_KEY, serverTime.toString());
+      });
+
+      // Receive messages from other users
+      socket.on('chat message', (message) => {
+        // Only display if not from current user (already displayed)
+        if (message.userId !== currentUser.id) {
+          saveMessage(message);
+          displayMessage(message);
+        }
+      });
+
+      // User connected
+      socket.on('user connected', (data) => {
+        console.log('User connected:', data.username);
+      });
+
+      // Load messages on page load (persist across page navigations)
+      loadMessages();
+
+      // Listen for server disconnect
+      socket.on('disconnect', () => {
+        console.log('Disconnected from server');
+      });
+    })();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= book.title %> - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    async function deleteReview(id){
+      if (!confirm('Delete this review?')) return;
+      const res = await fetch('/admin/reviews/' + id, { method: 'DELETE' });
+      if (res.ok) location.reload();
+      else alert('Failed');
+    }
+  </script>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <section class="book-hero">
+      <div class="book-hero-media">
+        <% if (book.cover_url) { %>
+          <img src="<%= book.cover_url %>" alt="Cover for <%= book.title %>">
+        <% } else { %>
+          <div class="cover-placeholder">
+            <span><%= (book.title || 'Book')[0] %></span>
+          </div>
+        <% } %>
+      </div>
+      <div class="book-hero-content">
+        <p class="eyebrow">Featured title</p>
+        <h2><%= book.title %></h2>
+        <p class="subtext"><%= book.authors || 'Unknown Author' %></p>
+        <p class="meta">ISBN: <%= book.isbn || 'N/A' %></p>
+        <div class="cta-group">
+          <a class="btn" href="/reviews/add?title=<%= encodeURIComponent(book.title) %>">Add a Review</a>
+          <a class="btn-outline" href="/books">Back to list</a>
+        </div>
+      </div>
+    </section>
+
+    <div style="margin-top:2em">
+      <h3>Reviews</h3>
+      <% if (reviews && reviews.length) { %>
+        <% reviews.forEach(function(r){ %>
+          <div class="review-card">
+            <div class="review-header">
+              <div><strong><%= r.username %></strong></div>
+              <div class="rating"><% for (let i=1;i<=5;i++){ %><span class="star <%= i<=r.rating ? 'filled':''%>">★</span><% } %></div>
+            </div>
+            <div class="review-content"><p><%= r.content %></p></div>
+            <div class="review-meta" style="margin-top:0.5em">
+              <span><%= new Date(r.created_at).toLocaleDateString() %></span>
+              <% if (currentUser && currentUser.isAdmin) { %>
+                <button onclick="deleteReview('<%= r.id %>')" class="btn" style="margin-left:1em">Delete</button>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No reviews yet.</p>
+      <% } %>
+    </div>
+
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BookConnect - Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main>
+    <section class="hero-section">
+      <h1>Welcome to BookConnect</h1>
+      <p class="hero-subtitle">Discover, review, and share your favorite books with a community of passionate readers.</p>
+      
+      <% if (!currentUser) { %>
+        <div class="auth-buttons">
+          <a href="/login" class="btn">Login</a>
+          <a href="/register" class="btn btn-secondary">Create account</a>
+        </div>
+        <div class="features">
+          <div class="feature-card">
+            <h3>📚 Discover Books</h3>
+            <p>Find new books through our community reviews.</p>
+          </div>
+          <div class="feature-card">
+            <h3>⭐ Rate & Review</h3>
+            <p>Share your thoughts and help others discover great reads.</p>
+          </div>
+          <div class="feature-card">
+            <h3>👥 Connect</h3>
+            <p>Join a community of book lovers and readers.</p>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="welcome-user">
+          <h2>Welcome back, <%= currentUser.username %>!</h2>
+          <p>Ready to discover your next favorite book?</p>
+          <div class="cta-group" style="justify-content:center;">
+            <a href="/reviews" class="btn">View Reviews</a>
+            <a href="/reviews/add" class="btn btn-secondary">Add Review</a>
+          </div>
+        </div>
+      <% } %>
+
+      <section class="home-search-section">
+        <h3 class="home-search-title">Jump into the library</h3>
+        <form action="/books" method="GET" class="home-search-form">
+          <input
+            name="q"
+            placeholder="Search books by title"
+            class="home-search-input"
+          >
+          <button class="btn" type="submit">Browse books</button>
+        </form>
+      </section>
+
+      <% if (typeof featured !== 'undefined' && featured.length) { %>
+        <section class="featured-section">
+          <div class="featured-header">
+            <h3>Featured books</h3>
+            <p class="subtext">Hand-picked titles trending in the community.</p>
+          </div>
+          <div class="featured-grid">
+            <% featured.forEach(function(b){ %>
+              <article class="featured-book-card">
+                <a href="/books/<%= b.id %>"><strong><%= b.title %></strong></a>
+                <div class="featured-book-meta"><%= b.authors || '—' %></div>
+              </article>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+    </section>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

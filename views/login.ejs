@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - BookConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background: linear-gradient(135deg,#667eea,#764ba2); }
+    .auth-card { background: #fff; padding:2.5rem; border-radius:12px; width:360px; box-shadow:0 10px 30px rgba(0,0,0,0.12); }
+    .auth-card h2{margin-top:0;text-align:center}
+    .auth-actions{display:flex;gap:0.5rem;justify-content:center;margin-top:1rem}
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <h2>Welcome back</h2>
+    <p class="subtext" style="color:#666;text-align:center;margin-top:-0.5rem;">Sign in to manage your reading lists and reviews.</p>
+    <% if (error) { %>
+      <p class="error"><%= error %></p>
+    <% } %>
+    <form action="/login" method="POST">
+      <label>Email</label>
+      <input type="email" name="email" placeholder="you@bookconnect.com" required>
+      <label>Password</label>
+      <input type="password" name="password" placeholder="••••••••" required>
+      <div style="text-align:center;margin-top:1rem"><button type="submit" class="btn">Login</button></div>
+    </form>
+    <div class="auth-actions">
+      <a href="/register" class="btn btn-secondary">Create account</a>
+    </div>
+  </div>
+</body>
+</html>

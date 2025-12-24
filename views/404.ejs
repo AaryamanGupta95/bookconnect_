@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 - Page Not Found</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  <main class="not-found">
+    <p class="eyebrow">Oops!</p>
+    <h1>404 — Page not found</h1>
+    <p><%= typeof message !== 'undefined' ? message : 'The page you are looking for doesn’t exist or was moved.' %></p>
+    <div class="cta-group" style="justify-content:center;margin-top:1.5em">
+      <a class="btn" href="/">Return Home</a>
+      <a class="btn-outline" href="/books">Browse Books</a>
+    </div>
+  </main>
+  <%- include('partials/footer') %>
+</body>
+</html>

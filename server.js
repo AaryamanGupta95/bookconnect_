@@ -29,41 +29,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// Session storage: MongoDB (primary) with in-memory bootstrap wrapper
-const MongoSessionStore = require('./utils/mongoSessionStore');
-const SessionStoreWrapper = require('./utils/sessionStoreWrapper');
-
-const sessionOptions = {
+// Session configuration (use default in-memory store for simplicity)
+app.use(session({
   name: 'bookconnect_sid',
   secret: process.env.SESSION_SECRET || 'dev_secret',
   resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 1000 * 60 * 60 * 2 } // 2 hours
-};
-
-// Session store will be initialized in start() function after MongoDB connection
-let mongoStore = null;
-const sessionStoreWrapper = new SessionStoreWrapper();
-sessionOptions.store = sessionStoreWrapper;
-
-// Function to initialize session store (called after MongoDB connection)
-async function initializeSessionStores() {
-  // Set up MongoDB session store (single, primary store)
-  try {
-    mongoStore = new MongoSessionStore();
-  } catch (mongoError) {
-    console.error('⚠️  MongoDB session store error:', mongoError.message);
-  }
-
-  // Update the wrapper with the persistent Mongo store (or stay in-memory on failure)
-  if (mongoStore) {
-    sessionStoreWrapper.setStore(mongoStore);
-  }
-}
-
-// Apply session middleware (store will be configured in initializeSessionStores)
-// Using temporary in-memory store until MongoDB connects
-app.use(session(sessionOptions));
+}));
 
 // Expose current user to EJS templates
 app.use((req, res, next) => {
@@ -147,9 +120,6 @@ async function start() {
     // Connect to MongoDB first (required for sessions and data)
     const { connectMongoDB } = require('./db-mongo');
     await connectMongoDB();
-
-    // Initialize session stores after MongoDB connection
-    await initializeSessionStores();
 
     let server;
     const httpsServer = createServerWithHTTPS();
